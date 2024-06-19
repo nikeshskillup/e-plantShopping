@@ -1,7 +1,33 @@
-import React, { useState,useEffect } from 'react';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import React, { useState, useEffect } from 'react';
 import './ProductList.css'
+import { useDispatch, useSelector } from 'react-redux';
+import { addItem } from './createSlice';
+import { useNavigate } from 'react-router-dom'; 
+
 function ProductList() {
-  
+    const dispatch = useDispatch();
+    const cartItems = useSelector(state => state.cart.cartItems);
+    // Calculate total quantity
+    const totalQuantity = cartItems.reduce((total, item) => total + item.quantity, 0);
+    const navigate = useNavigate();
+
+    const handleAddToCart = (plant) => {
+        // Check if the plant is already in the cart
+        const isAlreadyInCart = cartItems.some(item => item.name === plant.name);
+
+        if (!isAlreadyInCart) {
+            dispatch(addItem(plant)); // Dispatch the addItem action with the plant details
+        } else {
+            // Optionally, show a message that the plant is already in the cart
+            alert(`${plant.name} is already in the cart.`);
+        }
+    };
+
+    const toggleCart = () => {
+        navigate('/cart'); // Navigate to cart route
+      };
+
     const plantsArray = [
         {
             category: "Air Purifying Plants",
@@ -96,7 +122,7 @@ function ProductList() {
                 },
                 {
                     name: "Marigold",
-                    image:"",
+                    image: "",
                     description: "Natural insect repellent, also adds color to the garden.",
                     cost: "$8"
                 },
@@ -209,53 +235,86 @@ function ProductList() {
             ]
         }
     ];
-   const styleObj={
-    backgroundColor: '#4CAF50',
-    color: '#fff!important',
-    padding: '15px',
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignIems: 'center',
-    fontSize: '20px',
-   }
-   const styleObjUl={
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    width: '1100px',
-   }
-   const styleA={
-    color: 'white',
-    fontSize: '30px',
-    textDecoration: 'none',
-   }
+    const styleObj = {
+        backgroundColor: '#4CAF50',
+        color: '#fff!important',
+        padding: '15px',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignIems: 'center',
+        fontSize: '20px',
+    }
+    const styleObjUl = {
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        width: '1100px',
+    }
+    const styleA = {
+        color: 'white',
+        fontSize: '30px',
+        textDecoration: 'none',
+    }
+
+
+
     return (
         <div>
-             <div className="navbar" style={styleObj}>
-            <div className="tag">
-               <div className="luxury">
-               <img src="" alt="" />
-               <a href="/" style={{textDecoration:'none'}}>
-                        <div>
-                    <h3 style={{color:'white'}}>Paradise Nursery</h3>
-                    <i style={{color:'white'}}>Where Green Meets Serenity</i>
+            <div className="navbar" style={styleObj}>
+                <div className="tag">
+                    <div className="luxury">
+                        <img src="" alt="" />
+                        <a href="/" style={{ textDecoration: 'none' }}>
+                            <div>
+                                <h3 style={{ color: 'white' }}>Paradise Nursery</h3>
+                                <i style={{ color: 'white' }}>Where Green Meets Serenity</i>
+                            </div>
+                        </a>
                     </div>
-                    </a>
+
                 </div>
-              
+                <div style={styleObjUl}>
+                    <div> <a href="#" style={styleA}>Plants</a></div>
+                    <div>
+                        <a href="#" style={styleA} onClick={toggleCart}>
+                            <h1 className='cart'>
+                            {totalQuantity}
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" id="IconChangeColor" height="68" width="68"><rect width="156" height="156" fill="none"></rect>
+                                    <circle cx="80" cy="216" r="12"></circle>
+                                    <circle cx="184" cy="216" r="12"></circle>
+                                    <path d="M42.3,72H221.7l-26.4,92.4A15.9,15.9,0,0,1,179.9,176H84.1a15.9,15.9,0,0,1-15.4-11.6L32.5,37.8A8,8,0,0,0,24.8,32H8" fill="none" stroke="#faf9f9" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" id="mainIconPathAttribute"></path>
+                                </svg>
+                            </h1>
+                        </a>
+                    </div>
+                </div>
             </div>
-            <div style={styleObjUl}>
-                <div> <a href="#" style={styleA}>Plants</a></div>
-                <div> <a href="#" style={styleA}><h1 className='cart'><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" id="IconChangeColor" height="68" width="68"><rect width="156" height="156" fill="none"></rect><circle cx="80" cy="216" r="12"></circle><circle cx="184" cy="216" r="12"></circle><path d="M42.3,72H221.7l-26.4,92.4A15.9,15.9,0,0,1,179.9,176H84.1a15.9,15.9,0,0,1-15.4-11.6L32.5,37.8A8,8,0,0,0,24.8,32H8" fill="none" stroke="#faf9f9" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" id="mainIconPathAttribute"></path></svg></h1></a></div>
+
+            <div className="product-grid">
+                {plantsArray.map((category, index) => (
+                    <div key={index}>
+                        <h2>{category.category}</h2>
+                        <div className="row row-cols-1 row-cols-md-3 g-4">
+                            {category.plants.map((plant, plantIndex) => (
+                                <div className="col" key={plantIndex}>
+                                    <div className="card h-100">
+                                        <img src={plant.image} className="card-img-top" alt={plant.name} />
+                                        <div className="card-body">
+                                            <h5 className="card-title">{plant.name}</h5>
+                                            <p className="card-text">{plant.description}</p>
+                                            <p className="card-text">Cost: {plant.cost}</p>
+                                            <button className="btn btn-primary" onClick={() => handleAddToCart(plant)}>Add to Cart</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                ))}
+
             </div>
-        </div>
-
-        <div className="product-grid">
-
 
         </div>
-
-    </div>
     );
 }
 
